@@ -1,17 +1,19 @@
 // src/Pages/user/BookingForm.jsx
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { database } from "../../firebase";
-import { ref as dbRef, onValue, push } from "firebase/database";
+import { auth, database } from "../../firebase";
+import { ref as dbRef, onValue, push, get } from "firebase/database";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import QRCode from "react-qr-code";
 import bgImage from "../../image/bgg8.jpg";
+
 export default function BookingForm() {
   const { id } = useParams();
   const [room, setRoom] = useState(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -19,10 +21,13 @@ export default function BookingForm() {
     checkIn: "",
     checkOut: "",
     guests: 1,
+    roomsBooked: 1, // ✅ NEW field for multiple rooms
     paymentMethod: "offline",
   });
 
   const [popup, setPopup] = useState({ show: false, type: "", message: "" });
+
+  // ✅ Load room details
   useEffect(() => {
     const roomRef = dbRef(database, `rooms/${id}`);
     onValue(roomRef, (snapshot) => {
@@ -33,6 +38,28 @@ export default function BookingForm() {
       setLoading(false);
     });
   }, [id]);
+
+  // ✅ Load logged-in user details automatically
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged(async (user) => {
+      if (user) {
+        const userRef = dbRef(database, `users/${user.uid}`);
+        const snapshot = await get(userRef);
+        const userData = snapshot.val();
+
+        setFormData((prev) => ({
+          ...prev,
+          name: user.displayName || (userData ? userData.name : ""),
+          email: user.email || "",
+          phone: userData?.phone || "",
+        }));
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  // ✅ Handle input change
   const handleChange = (e) => {
     const { name, value } = e.target;
 
@@ -45,6 +72,8 @@ export default function BookingForm() {
       setFormData((prev) => ({ ...prev, [name]: value }));
     }
   };
+
+  // ✅ Handle form submit
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (formData.phone.length !== 10) {
@@ -59,16 +88,19 @@ export default function BookingForm() {
       }, 2500);
       return;
     }
+
     try {
       const bookingRef = dbRef(database, "bookings");
       const newBooking = {
         roomId: id,
         roomName: room.roomName,
-        price: room.price,
+        pricePerNight: room.price,
+        totalPrice: room.price * formData.roomsBooked, // ✅ total calculation
         ...formData,
         status: "pending",
         createdAt: new Date().toISOString(),
       };
+
       const newRef = await push(bookingRef, newBooking);
 
       setPopup({
@@ -93,8 +125,10 @@ export default function BookingForm() {
       }, 2500);
     }
   };
+
   if (loading) return <p style={{ textAlign: "center" }}>Loading...</p>;
   if (!room) return <p style={{ textAlign: "center" }}>Room not found</p>;
+
   return (
     <>
       <Navbar />
@@ -115,6 +149,7 @@ export default function BookingForm() {
           <p style={priceStyle}>₹{room.price} / night</p>
 
           <form onSubmit={handleSubmit}>
+            <label style={labelStyle}>Full Name</label>
             <input
               type="text"
               name="name"
@@ -124,6 +159,7 @@ export default function BookingForm() {
               required
               style={inputStyle}
             />
+            <label style={labelStyle}>Email</label>
             <input
               type="email"
               name="email"
@@ -133,6 +169,7 @@ export default function BookingForm() {
               required
               style={inputStyle}
             />
+            <label style={labelStyle}>Phone Number</label>
             <input
               type="tel"
               name="phone"
@@ -170,6 +207,18 @@ export default function BookingForm() {
               name="guests"
               min="1"
               value={formData.guests}
+              onChange={handleChange}
+              required
+              style={inputStyle}
+            />
+
+            {/* ✅ NEW FIELD - Number of Rooms */}
+            <label style={labelStyle}>Number of Rooms</label>
+            <input
+              type="number"
+              name="roomsBooked"
+              min="1"
+              value={formData.roomsBooked}
               onChange={handleChange}
               required
               style={inputStyle}
@@ -218,8 +267,9 @@ export default function BookingForm() {
           </div>
         </div>
       )}
-     <Footer />
-     {/* ✨ Focus Effects CSS */}
+      <Footer />
+
+      {/* ✨ Focus Effects CSS */}
       <style>
         {`
           input:focus, select:focus {
@@ -232,6 +282,8 @@ export default function BookingForm() {
     </>
   );
 }
+
+// 🔹 Styles
 const formCard = {
   width: "100%",
   maxWidth: "480px",
@@ -277,7 +329,7 @@ const buttonStyle = {
   padding: "12px",
   borderRadius: "10px",
   border: "none",
-  background: "linear-gradient(135deg, #43e97b, #38f9d7)",
+  background: "linear-gradient( #e64a19)",
   color: "#fff",
   fontSize: "16px",
   fontWeight: "bold",

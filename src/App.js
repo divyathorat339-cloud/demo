@@ -11,6 +11,17 @@ import Bookings from "./Pages/admin/Bookings";
 import Users from "./Pages/admin/Users";
 import AddStaff from "./Pages/admin/staff/AddStaff";
 
+// Reports
+import TotalBookings from "./Pages/admin/reports/TotalBookings";
+import TotalUsers from "./Pages/admin/reports/TotalUsers";
+import TotalHotels from "./Pages/admin/reports/TotalHotels";
+import Reviews from "./Pages/admin/reports/Reviews";
+import Contactus from "./Pages/admin/reports/Contactus";
+import Staffreport from "./Pages/admin/reports/Staffreport";
+import TopHotels from "./Pages/admin/reports/TopHotels";
+import AllBookings from "./Pages/admin/reports/AllBookings";
+
+
 // User Pages
 import Home from "./Pages/user/Home";
 import HotelsList from "./Pages/user/HotelsList";
@@ -26,9 +37,11 @@ import BookingForm from "./Pages/user/BookingForm";
 import BookingSuccess from "./Pages/user/BookingSuccess";
 import MyBookings from "./Pages/user/MyBookings";
 import Profile from "./Pages/user/Profile";
-import Sidebar from "./components/Sidebar";
+
+// Components
 import UserProtectedRoute from "./components/UserProtectedRoute";
-import AdminProtectedRoute from "./components/AdminProtectedRoute"; 
+import AdminProtectedRoute from "./components/AdminProtectedRoute";
+import AdminLayout from "./components/AdminLayout"; // ✅ Use AdminLayout
 
 function App() {
   return (
@@ -46,7 +59,7 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/auth/forgotpassword" element={<ForgotPassword />} />
 
-        {/* ✅ Corrected Rooms Route */}
+        {/* ✅ Corrected Rooms Routes */}
         <Route path="/rooms/:hotelId" element={<Rooms />} />
         <Route path="/room/:id" element={<RoomDetails />} />
 
@@ -60,7 +73,10 @@ function App() {
             </UserProtectedRoute>
           }
         />
-        <Route path="/booking-success/:bookingId" element={<BookingSuccess />} />
+        <Route
+          path="/booking-success/:bookingId"
+          element={<BookingSuccess />}
+        />
 
         {/* ===================== ADMIN PANEL ===================== */}
         <Route path="/admin/login" element={<AdminLogin />} />
@@ -68,29 +84,32 @@ function App() {
           path="/admin/*"
           element={
             <AdminProtectedRoute>
-              <div style={{ display: "flex", minHeight: "100vh" }}>
-                <Sidebar />
-                <main
-                  style={{ flex: 1, padding: "20px", background: "#f1f5f9" }}
-                >
-                  <Routes>
-                    <Route path="" element={<Dashboard />} />
-                    <Route path="dashboard" element={<Dashboard />} />
-                    <Route path="hotels" element={<ManageHotels />} />
-                    <Route path="rooms" element={<ManageRooms />} />
-                    <Route path="categories" element={<RoomCategories />} />
-                    <Route path="bookings" element={<Bookings />} />
-                    <Route path="users" element={<Users />} />
-                    <Route path="staff/new" element={<AddStaff />} />
-
-                    {/* 404 inside admin panel */}
-                    <Route path="*" element={<h2>404 - Admin Page Not Found</h2>} />
-                  </Routes>
-                </main>
-              </div>
+              <AdminLayout /> {/* ✅ Sidebar + Margin fix */}
             </AdminProtectedRoute>
           }
-        />
+        >
+          <Route path="dashboard" element={<Dashboard />} />
+          <Route path="hotels" element={<ManageHotels />} />
+          <Route path="rooms" element={<ManageRooms />} />
+          <Route path="categories" element={<RoomCategories />} />
+          <Route path="bookings" element={<Bookings />} />
+          <Route path="users" element={<Users />} />
+          <Route path="staff/new" element={<AddStaff />} />
+
+          {/* ✅ Reports inside Admin Layout */}
+          <Route path="reports/total-bookings" element={<TotalBookings />} />
+          <Route path="reports/total-users" element={<TotalUsers />} />
+          <Route path="reports/total-hotels" element={<TotalHotels />} />
+          <Route path="reports/Reviews" element={<Reviews />} />
+          <Route path="reports/Contactus" element={<Contactus />} />
+          <Route path="reports/Staffreport" element={<Staffreport />} />
+          <Route path="reports/top-hotels" element={<TopHotels />} />
+          <Route path="reports/all-bookings" element={<AllBookings />} />
+       
+
+          {/* 404 inside admin */}
+          <Route path="*" element={<h2>404 - Admin Page Not Found</h2>} />
+        </Route>
 
         {/* ===================== GLOBAL 404 ===================== */}
         <Route path="*" element={<h1>404 - Page Not Found</h1>} />

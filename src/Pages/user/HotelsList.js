@@ -39,12 +39,14 @@ export default function Hotels() {
     }
   }, [city, hotels]);
 
+  // ✅ Search by name, city, OR price
   const handleSearch = (term) => {
     const lowerTerm = term.toLowerCase();
     const filtered = hotels.filter(
       (hotel) =>
         hotel.location?.toLowerCase().includes(lowerTerm) ||
-        hotel.name?.toLowerCase().includes(lowerTerm)
+        hotel.name?.toLowerCase().includes(lowerTerm) ||
+        hotel.price?.toString().includes(lowerTerm.replace(/[^0-9]/g, "")) // check numbers inside search
     );
     setSearchResult(filtered);
   };
@@ -70,15 +72,16 @@ export default function Hotels() {
     const matches = hotels.filter(
       (hotel) =>
         hotel.location?.toLowerCase().includes(lowerTerm) ||
-        hotel.name?.toLowerCase().includes(lowerTerm)
+        hotel.name?.toLowerCase().includes(lowerTerm) ||
+        hotel.price?.toString().includes(lowerTerm.replace(/[^0-9]/g, ""))
     );
 
     setSuggestions(matches.slice(0, 5));
   };
 
   const handleSuggestionClick = (suggestion) => {
-    setSearchTerm(suggestion.name || suggestion.location);
-    handleSearch(suggestion.name || suggestion.location);
+    setSearchTerm(suggestion.name || suggestion.location || suggestion.price);
+    handleSearch(suggestion.name || suggestion.location || suggestion.price);
     setSuggestions([]);
   };
 
@@ -147,7 +150,7 @@ export default function Hotels() {
             />
             <input
               type="text"
-              placeholder="Search by city or hotel name..."
+              placeholder="Search by city, hotel name, or price..."
               value={searchTerm}
               onChange={handleChange}
               onKeyDown={handleKeyDown}
@@ -201,6 +204,10 @@ export default function Hotels() {
                     {highlightMatch(s.name, searchTerm)} –{" "}
                     <span style={{ color: "#777" }}>
                       {highlightMatch(s.location, searchTerm)}
+                    </span>{" "}
+                    –{" "}
+                    <span style={{ color: "#ff7b54" }}>
+                      ₹{s.price}
                     </span>
                   </li>
                 ))}

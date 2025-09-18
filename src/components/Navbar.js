@@ -1,8 +1,11 @@
+// src/components/Navbar.jsx
 import React, { useEffect, useState, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { auth, database } from "../firebase";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { ref as dbRef, get } from "firebase/database";
+import { FaUser, FaBook, FaSignOutAlt } from "react-icons/fa"; // ✅ Icons
+
 export default function Navbar() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -10,6 +13,7 @@ export default function Navbar() {
   const [userData, setUserData] = useState(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       if (currentUser) {
@@ -25,6 +29,7 @@ export default function Navbar() {
     });
     return () => unsubscribe();
   }, []);
+
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
@@ -39,13 +44,13 @@ export default function Navbar() {
     await signOut(auth);
     navigate("/login");
   };
+
   const isHome = location.pathname === "/";
+
   return (
     <nav
       style={{
-        background: isHome
-          ? "rgba(0, 0, 0, 0.3)"
-          : "rgba(0, 0, 0, 0.6)",
+        background: isHome ? "rgba(0, 0, 0, 0.3)" : "rgba(0, 0, 0, 0.6)",
         backdropFilter: "blur(8px)",
         WebkitBackdropFilter: "blur(8px)",
         padding: "15px 40px",
@@ -59,9 +64,10 @@ export default function Navbar() {
         left: 0,
         right: 0,
         zIndex: 1000,
+        fontFamily: "Segoe UI, Arial, sans-serif",
       }}
     >
-      {/* Logo / Brand */}
+      {/* Logo */}
       <div style={{ fontSize: "1.5rem", fontWeight: "bold", color: "#fff" }}>
         <Link to="/" style={{ color: "white", textDecoration: "none" }}>
           Book My Stay
@@ -70,20 +76,11 @@ export default function Navbar() {
 
       {/* Links */}
       <div style={{ display: "flex", gap: "30px", fontSize: "1rem", alignItems: "center" }}>
-        <Link to="/" style={{ color: "#fff", textDecoration: "none" }}>
-          Home
-        </Link>
-        <Link to="/hotels" style={{ color: "#fff", textDecoration: "none" }}>
-          Hotels
-        </Link>
-        <Link to="/about" style={{ color: "#fff", textDecoration: "none" }}>
-          About Us
-        </Link>
-        <Link to="/contact" style={{ color: "#fff", textDecoration: "none" }}>
-          Contact Us
-        </Link>
+        <Link to="/" style={{ color: "#fff", textDecoration: "none" }}>Home</Link>
+        <Link to="/hotels" style={{ color: "#fff", textDecoration: "none" }}>Hotels</Link>
+        <Link to="/about" style={{ color: "#fff", textDecoration: "none" }}>About Us</Link>
+        <Link to="/contact" style={{ color: "#fff", textDecoration: "none" }}>Contact Us</Link>
 
-        {/* If user not logged in */}
         {!user ? (
           <Link to="/login" style={{ color: "#fff", textDecoration: "none" }}>
             Login
@@ -122,46 +119,40 @@ export default function Navbar() {
                   borderRadius: "8px",
                   boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
                   overflow: "hidden",
-                  minWidth: "160px",
+                  minWidth: "200px",
+                  fontFamily: "Segoe UI, Arial, sans-serif",
                 }}
               >
+                {/* Profile */}
                 <Link
                   to="/profile"
-                  style={{
-                    display: "block",
-                    padding: "10px 15px",
-                    textDecoration: "none",
-                    color: "#000",
-                  }}
+                  style={dropdownItemStyle}
                   onClick={() => setDropdownOpen(false)}
+                  onMouseEnter={(e) => hoverEffect(e, true)}
+                  onMouseLeave={(e) => hoverEffect(e, false)}
                 >
-                  My Profile
+                  <FaUser style={iconStyle} /> My Profile
                 </Link>
+
+                {/* Bookings */}
                 <Link
                   to="/my-bookings"
-                  style={{
-                    display: "block",
-                    padding: "10px 15px",
-                    textDecoration: "none",
-                    color: "#000",
-                  }}
+                  style={dropdownItemStyle}
                   onClick={() => setDropdownOpen(false)}
+                  onMouseEnter={(e) => hoverEffect(e, true)}
+                  onMouseLeave={(e) => hoverEffect(e, false)}
                 >
-                  My Bookings
+                  <FaBook style={iconStyle} /> My Bookings
                 </Link>
+
+                {/* Logout */}
                 <button
                   onClick={handleLogout}
-                  style={{
-                    display: "block",
-                    width: "100%",
-                    padding: "10px 15px",
-                    background: "none",
-                    border: "none",
-                    textAlign: "left",
-                    cursor: "pointer",
-                  }}
+                  style={{ ...dropdownItemStyle, width: "100%", border: "none", background: "none" }}
+                  onMouseEnter={(e) => hoverEffect(e, true)}
+                  onMouseLeave={(e) => hoverEffect(e, false)}
                 >
-                  Logout
+                  <FaSignOutAlt style={iconStyle} /> Logout
                 </button>
               </div>
             )}
@@ -171,3 +162,28 @@ export default function Navbar() {
     </nav>
   );
 }
+
+/* 🔹 Styles for dropdown items */
+const dropdownItemStyle = {
+  display: "flex",
+  alignItems: "center",
+  gap: "10px",
+  padding: "12px 15px",
+  fontSize: "14px",
+  fontWeight: "500",
+  textDecoration: "none",
+  color: "#000",
+  transition: "all 0.25s ease",
+  cursor: "pointer",
+};
+
+/* 🔹 Icon style */
+const iconStyle = {
+  fontSize: "16px",
+};
+
+/* 🔹 Hover effect function */
+const hoverEffect = (e, isEnter) => {
+  e.target.style.background = isEnter ? "#f0f0f0" : "transparent";
+  e.target.style.paddingLeft = isEnter ? "20px" : "15px";
+};

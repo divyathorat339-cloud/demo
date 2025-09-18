@@ -1,3 +1,4 @@
+// src/components/Sidebar.jsx
 import React, { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
@@ -9,9 +10,9 @@ import {
   LogOut,
   Users as UsersIcon,
   UserPlus,
-  BarChart2, // Reports main icon
+  BarChart2, // reports icon
   ChevronDown,
-  ChevronRight,
+  ChevronUp,
 } from "lucide-react";
 import { signOut } from "firebase/auth";
 import { auth } from "../firebase";
@@ -21,6 +22,7 @@ export default function Sidebar() {
   const navigate = useNavigate();
   const [openReports, setOpenReports] = useState(false);
 
+  // Admin menu items
   const menuItems = [
     { name: "Dashboard", path: "/admin/dashboard", icon: <LayoutDashboard size={18} /> },
     { name: "Manage Hotels", path: "/admin/hotels", icon: <Hotel size={18} /> },
@@ -31,11 +33,16 @@ export default function Sidebar() {
     { name: "Add Staff", path: "/admin/staff/new", icon: <UserPlus size={18} /> },
   ];
 
+  // Reports dropdown items
   const reportItems = [
-    { name: "Booking Report", path: "/admin/reports/bookings" },
-    { name: "Revenue Report", path: "/admin/reports/revenue" },
-    { name: "Room-wise Report", path: "/admin/reports/rooms" },
-    { name: "User-wise Report", path: "/admin/reports/users" },
+    { name: "Total Bookings", path: "/admin/reports/total-bookings" },
+    { name: "Total Users", path: "/admin/reports/total-users" },
+    { name: "Total Hotels", path: "/admin/reports/total-hotels" },
+    { name: "Reviews", path: "/admin/reports/Reviews" },
+    { name: "Contactus", path: "/admin/reports/Contactus" },
+    { name: "Staffreport", path: "/admin/reports/Staffreport" },
+    { name: "Top Hotels", path: "/admin/reports/top-hotels" },
+    { name: "All Bookings", path: "/admin/reports/all-bookings" },
   ];
 
   const handleLogout = async () => {
@@ -50,13 +57,17 @@ export default function Sidebar() {
   return (
     <aside
       style={{
-        width: "240px",
-        minHeight: "100vh",
+        width: "225px",
+        height: "100vh",
+        position: "fixed",
+        top: 0,
+        left: 0,
         background: "#1e293b",
         color: "white",
         padding: "20px",
         display: "flex",
         flexDirection: "column",
+        overflowY: "auto",
       }}
     >
       {/* Logo / Title */}
@@ -94,6 +105,7 @@ export default function Sidebar() {
             const active =
               location.pathname === item.path ||
               (item.path === "/admin/dashboard" && location.pathname === "/admin");
+
             return (
               <li key={item.name} style={{ marginBottom: "20px" }}>
                 <Link
@@ -118,7 +130,7 @@ export default function Sidebar() {
             );
           })}
 
-          {/* Reports Dropdown */}
+          {/* Reports dropdown */}
           <li style={{ marginBottom: "20px" }}>
             <button
               onClick={() => setOpenReports(!openReports)}
@@ -127,30 +139,30 @@ export default function Sidebar() {
                 alignItems: "center",
                 justifyContent: "space-between",
                 width: "100%",
-                gap: "10px",
                 padding: "10px 14px",
                 borderRadius: "8px",
                 background: "transparent",
-                border: "none",
                 color: "white",
+                border: "none",
                 cursor: "pointer",
                 fontWeight: "500",
               }}
             >
               <span style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                <BarChart2 size={18} /> Reports
+                <BarChart2 size={18} />
+                Reports
               </span>
-              {openReports ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+              {openReports ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
             </button>
 
             {openReports && (
               <ul style={{ listStyle: "none", paddingLeft: "20px", marginTop: "10px" }}>
-                {reportItems.map((r) => {
-                  const active = location.pathname === r.path;
+                {reportItems.map((report) => {
+                  const active = location.pathname === report.path;
                   return (
-                    <li key={r.name} style={{ marginBottom: "10px" }}>
+                    <li key={report.name} style={{ marginBottom: "10px" }}>
                       <Link
-                        to={r.path}
+                        to={report.path}
                         style={{
                           display: "block",
                           padding: "8px 12px",
@@ -162,7 +174,7 @@ export default function Sidebar() {
                           transition: "0.2s",
                         }}
                       >
-                        {r.name}
+                        {report.name}
                       </Link>
                     </li>
                   );

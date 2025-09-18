@@ -11,7 +11,9 @@ import {
   update,
   serverTimestamp,
 } from "firebase/database";
+
 const ROLES = ["Manager", "Front Desk", "Housekeeping", "Maintenance", "Kitchen"];
+
 export default function StaffManagement() {
   const [form, setForm] = useState({
     fullName: "",
@@ -23,6 +25,8 @@ export default function StaffManagement() {
   const [loading, setLoading] = useState(false);
   const [staffList, setStaffList] = useState([]);
   const [editId, setEditId] = useState(null);
+  const [viewStaff, setViewStaff] = useState(null);
+
   useEffect(() => {
     const db = getDatabase();
     const staffRef = ref(db, "staff");
@@ -40,8 +44,10 @@ export default function StaffManagement() {
     });
     return () => unsubscribe();
   }, []);
+
   const onChange = (e) =>
     setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
+
   const resetForm = () => {
     setForm({
       fullName: "",
@@ -52,6 +58,7 @@ export default function StaffManagement() {
     });
     setEditId(null);
   };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!form.fullName.trim() || !form.role || !form.hotelId.trim()) {
@@ -87,6 +94,7 @@ export default function StaffManagement() {
       setLoading(false);
     }
   };
+
   const handleEdit = async (id) => {
     const db = getDatabase();
     const staffRef = ref(db, `staff/${id}`);
@@ -96,6 +104,7 @@ export default function StaffManagement() {
       setEditId(id);
     }
   };
+
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this staff?")) {
       const db = getDatabase();
@@ -103,6 +112,16 @@ export default function StaffManagement() {
       alert("🗑️ Staff deleted");
     }
   };
+
+  const handleView = async (id) => {
+    const db = getDatabase();
+    const staffRef = ref(db, `staff/${id}`);
+    const snap = await get(staffRef);
+    if (snap.exists()) {
+      setViewStaff({ id, ...snap.val() });
+    }
+  };
+
   return (
     <div style={styles.page}>
       <h1 style={styles.title}>
@@ -205,6 +224,12 @@ export default function StaffManagement() {
               <td style={styles.td}>{s.hotelId}</td>
               <td style={styles.td}>
                 <button
+                  onClick={() => handleView(s.id)}
+                  style={{ ...styles.actionBtn, background: "#42a5f5" }}
+                >
+                   View Details
+                </button>
+                <button
                   onClick={() => handleEdit(s.id)}
                   style={styles.actionBtn}
                 >
@@ -228,9 +253,41 @@ export default function StaffManagement() {
           )}
         </tbody>
       </table>
+
+      {/* ✅ Modal for Staff Details */}
+      {viewStaff && (
+        <div style={styles.modalOverlay}>
+          <div style={styles.modalBox}>
+            <div style={styles.modalHeader}>
+              <h3 style={styles.detailsTitle}>👤 Staff Details</h3>
+              <button
+                onClick={() => setViewStaff(null)}
+                style={styles.closeBtn}
+              >
+                ✖
+              </button>
+            </div>
+            <div style={styles.detailsContent}>
+              <p><span>👨‍💼</span> <b>Name:</b> {viewStaff.fullName}</p>
+              <p><span>📧</span> <b>Email:</b> {viewStaff.email || "N/A"}</p>
+              <p><span>📱</span> <b>Phone:</b> {viewStaff.phone || "N/A"}</p>
+              <p><span>🎯</span> <b>Role:</b> {viewStaff.role}</p>
+              <p><span>🏨</span> <b>Hotel ID:</b> {viewStaff.hotelId}</p>
+              <p><span>✅</span> <b>Status:</b> {viewStaff.status || "active"}</p>
+            </div>
+            <button
+              onClick={() => setViewStaff(null)}
+              style={styles.closeBtnBottom}
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
+
 function Field({ label, children }) {
   return (
     <label style={styles.field}>
@@ -239,6 +296,7 @@ function Field({ label, children }) {
     </label>
   );
 }
+
 const styles = {
   page: {
     padding: "30px",
@@ -269,7 +327,7 @@ const styles = {
     padding: "10px 18px",
     borderRadius: "8px",
     border: "none",
-    background: "#2563eb",
+    background: "#42a5f5",
     color: "white",
     fontWeight: 700,
     cursor: "pointer",
@@ -305,8 +363,65 @@ const styles = {
     padding: "6px 12px",
     border: "none",
     borderRadius: "6px",
-    background: "#3b82f6",
+    background: "#42a5f5",
     color: "white",
+    cursor: "pointer",
+  },
+  // Modal styles
+  modalOverlay: {
+    position: "fixed",
+    top: 0,
+    left: 0,
+    width: "100vw",
+    height: "100vh",
+    background: "rgba(0,0,0,0.6)",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 9999,
+    animation: "fadeIn 0.3s ease-in-out",
+  },
+  modalBox: {
+    background: "white",
+    padding: "24px",
+    borderRadius: "16px",
+    width: "420px",
+    boxShadow: "0 6px 25px rgba(0,0,0,0.3)",
+    transform: "scale(1)",
+    animation: "scaleIn 0.3s ease-in-out",
+  },
+  modalHeader: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: "15px",
+    borderBottom: "2px solid #f1f5f9",
+    paddingBottom: "10px",
+  },
+  detailsTitle: { fontSize: "20px", color: "#1e293b", fontWeight: "700" },
+  detailsContent: {
+    display: "grid",
+    gap: "10px",
+    fontSize: "15px",
+    color: "#334155",
+    marginBottom: "15px",
+  },
+  closeBtn: {
+    border: "none",
+    background: "transparent",
+    fontSize: "18px",
+    cursor: "pointer",
+    color: "#ef4444",
+    fontWeight: "700",
+  },
+  closeBtnBottom: {
+    width: "100%",
+    padding: "10px 0",
+    borderRadius: "8px",
+    border: "none",
+    background: "#2563eb",
+    color: "white",
+    fontWeight: "600",
     cursor: "pointer",
   },
 };

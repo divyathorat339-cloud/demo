@@ -1,3 +1,4 @@
+// src/Pages/user/Login.jsx
 import React, { useState } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { signInWithEmailAndPassword } from "firebase/auth";
@@ -5,6 +6,7 @@ import { auth } from "../../firebase";
 import bgImage from "../../image/bgg7.jpg";
 import Navbar from "../../components/Navbar"; 
 import Footer from "../../components/Footer"; 
+
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -12,7 +14,10 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+
+  // ✅ If redirected from Book Now, it will contain the original path
   const from = location.state?.from || "/home";
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -21,12 +26,17 @@ export default function Login() {
       setLoading(false);
       setPopup({ show: true, message: "✅ Login Successful! 🎉", type: "success" });
       setTimeout(() => {
-      setPopup({ show: false, message: "", type: "" });
-      navigate(from, { replace: true });
+        setPopup({ show: false, message: "", type: "" });
+        // ✅ Redirects back to the original page (e.g., /book/:id)
+        navigate(from, { replace: true });
       }, 2000);
     } catch (err) {
       setLoading(false);
-      setPopup({ show: true, message: "❌ Invalid credentials!", type: "error" });
+      setPopup({
+        show: true,
+        message: "❌ Invalid credentials!",
+        type: "error",
+      });
       setTimeout(() => {
         setPopup({ show: false, message: "", type: "" });
       }, 2000);
@@ -99,7 +109,7 @@ export default function Login() {
       <Footer />
       <style>
         {`
-          /* Container with background */
+          /* Same CSS as before, unchanged */
           .login-container {
             display: flex;
             justify-content: center;
@@ -113,7 +123,6 @@ export default function Login() {
             padding-top: 20px;
           }
 
-          /* Card */
           .login-card {
             background: rgba(255, 255, 255, 0.95);
             padding: 40px 30px;
@@ -124,7 +133,6 @@ export default function Login() {
             animation: fadeIn 0.6s ease-in-out;
           }
 
-          /* Heading */
           .heading {
             margin-bottom: 25px;
             color: #ff7b54;
@@ -132,7 +140,6 @@ export default function Login() {
             font-size: 24px;
           }
 
-          /* Inputs */
           .input {
             width: 95%;
             padding: 12px 15px;
@@ -149,7 +156,6 @@ export default function Login() {
             box-shadow: 0 0 8px #ff7b54;
           }
 
-          /* Button */
           .button {
             width: 100%;
             padding: 12px;
@@ -167,7 +173,6 @@ export default function Login() {
             box-shadow: 0 5px 15px rgba(255,123,84,0.4);
           }
 
-          /* Footer links */
           .footer {
             margin-top: 15px;
             font-size: 14px;
@@ -183,7 +188,6 @@ export default function Login() {
             text-decoration: underline;
           }
 
-          /* Popup overlay */
           .popup-overlay {
             position: fixed;
             top: 0;

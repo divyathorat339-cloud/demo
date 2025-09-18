@@ -204,7 +204,7 @@ export default function RoomCategories() {
           <button
             type="submit"
             style={{
-              background: editingId ? "linear-gradient(to right, #f59e0b, #f97316)" : "linear-gradient(to right, #6366f1, #8b5cf6)",
+              background: "#42a5f5",
               color: "white",
               fontWeight: 600,
               padding: "12px",

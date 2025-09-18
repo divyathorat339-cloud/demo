@@ -12,14 +12,13 @@ import { useNavigate } from "react-router-dom";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import bgImage from "../../image/bg111.jpg";
-import { FaUser, FaLock, FaTrash, FaPhone, FaMapMarkerAlt, FaCalendarAlt, FaVenusMars } from "react-icons/fa";
 
 export default function Profile() {
   const [user, setUser] = useState(null);
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
-    address: "",
+    city: "",
     dob: "",
     gender: "",
   });
@@ -38,7 +37,7 @@ export default function Profile() {
           setFormData({
             name: snapshot.val().name || "",
             phone: snapshot.val().phone || "",
-            address: snapshot.val().address || "",
+            city: snapshot.val().city || "",
             dob: snapshot.val().dob || "",
             gender: snapshot.val().gender || "",
           });
@@ -102,7 +101,9 @@ export default function Profile() {
   };
 
   if (loading)
-    return <p style={{ marginTop: "100px", textAlign: "center" }}>Loading...</p>;
+    return (
+      <p style={{ marginTop: "100px", textAlign: "center" }}>Loading...</p>
+    );
 
   return (
     <>
@@ -127,7 +128,7 @@ export default function Profile() {
             borderRadius: "15px",
             padding: "30px",
             width: "100%",
-            maxWidth: "450px",
+            maxWidth: "600px",
             boxShadow: "0 8px 24px rgba(0,0,0,0.25)",
             animation: "fadeIn 0.6s ease-in-out",
             marginTop: "30px",
@@ -141,49 +142,76 @@ export default function Profile() {
               color: "#333",
             }}
           >
-            <FaUser style={{ marginRight: "8px", color: "#007bff" }} />
             My Profile
           </h2>
-          <p style={{ fontSize: "0.95rem", textAlign: "center", color: "#666" }}>
+          <p
+            style={{ fontSize: "0.95rem", textAlign: "center", color: "#666" }}
+          >
             Update your account details
           </p>
 
           {/* Profile Form */}
           <form
             onSubmit={handleUpdate}
-            style={{ display: "flex", flexDirection: "column", gap: "15px", marginTop: "20px" }}
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "15px",
+              marginTop: "20px",
+            }}
           >
-            <label style={{ fontSize: "0.9rem", color: "#444" }}>Full Name</label>
-            <input type="text" name="name" value={formData.name} onChange={handleChange} style={inputStyle} required />
+            <label style={{ fontSize: "0.9rem", color: "#444" }}>
+              Full Name
+            </label>
+            <input
+              type="text"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              style={inputStyle}
+              required
+            />
 
             <label style={{ fontSize: "0.9rem", color: "#444" }}>Email</label>
-            <input type="email" value={user?.email} disabled style={{ ...inputStyle, background: "#eee", cursor: "not-allowed" }} />
+            <input
+              type="email"
+              value={user?.email}
+              disabled
+              style={{
+                ...inputStyle,
+                background: "#eee",
+                cursor: "not-allowed",
+              }}
+            />
+
+            <label style={{ fontSize: "0.9rem", color: "#444" }}>Phone</label>
+            <input
+              type="text"
+              name="phone"
+              value={formData.phone}
+              onChange={handleChange}
+              style={inputStyle}
+            />
+
+            <label style={{ fontSize: "0.9rem", color: "#444" }}>City</label>
+            <input
+              type="text"
+              name="city"
+              value={formData.city}
+              onChange={handleChange}
+              style={inputStyle}
+            />
 
             <label style={{ fontSize: "0.9rem", color: "#444" }}>
-              <FaPhone style={{ marginRight: "6px", color: "#007bff" }} /> Phone
+              Date of Birth
             </label>
-            <input type="text" name="phone" value={formData.phone} onChange={handleChange} style={inputStyle} />
-
-            <label style={{ fontSize: "0.9rem", color: "#444" }}>
-              <FaMapMarkerAlt style={{ marginRight: "6px", color: "#28a745" }} /> Address
-            </label>
-            <input type="text" name="address" value={formData.address} onChange={handleChange} style={inputStyle} />
-
-            <label style={{ fontSize: "0.9rem", color: "#444" }}>
-              <FaCalendarAlt style={{ marginRight: "6px", color: "#ff9800" }} /> Date of Birth
-            </label>
-            <input type="date" name="dob" value={formData.dob} onChange={handleChange} style={inputStyle} />
-
-            <label style={{ fontSize: "0.9rem", color: "#444" }}>
-              <FaVenusMars style={{ marginRight: "6px", color: "#e91e63" }} /> Gender
-            </label>
-            <select name="gender" value={formData.gender} onChange={handleChange} style={inputStyle}>
-              <option value="">Select</option>
-              <option value="Male">Male</option>
-              <option value="Female">Female</option>
-              <option value="Other">Other</option>
-            </select>
-
+            <input
+              type="date"
+              name="dob"
+              value={formData.dob}
+              onChange={handleChange}
+              style={inputStyle}
+            />
             <button type="submit" style={buttonStyle} disabled={saving}>
               {saving ? "Updating..." : "Update Profile"}
             </button>
@@ -193,25 +221,49 @@ export default function Profile() {
 
           {/* Security Settings */}
           <div>
-            <h3 style={{ fontSize: "1.2rem", marginBottom: "15px", color: "#333" }}>
-              <FaLock style={{ marginRight: "8px", color: "#28a745" }} /> Security Settings
+            <h3
+              style={{
+                fontSize: "1.2rem",
+                marginBottom: "15px",
+                color: "#333",
+              }}
+            >
+              Security Settings
             </h3>
 
             <div style={{ marginBottom: "20px" }}>
-              <label style={{ fontSize: "0.9rem", color: "#444", display: "block", marginBottom: "8px" }}>
+              <label
+                style={{
+                  fontSize: "0.9rem",
+                  color: "#444",
+                  display: "block",
+                  marginBottom: "8px",
+                }}
+              >
                 New Password
               </label>
-              <input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} style={inputStyle} />
+              <input
+                type="password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                style={inputStyle}
+              />
             </div>
 
-            {/* Buttons side by side with gap */}
+            {/* Buttons side by side */}
             <div style={{ display: "flex", gap: "15px", marginTop: "15px" }}>
-              <button onClick={handleChangePassword} style={{ ...buttonStyle, background: "#28a745", flex: 1 }}>
+              <button
+                onClick={handleChangePassword}
+                style={{ ...buttonStyle, background: "#28a745", flex: 1 }}
+              >
                 Change Password
               </button>
 
-              <button onClick={handleDeleteAccount} style={{ ...buttonStyle, background: "#dc3545", flex: 1 }}>
-                <FaTrash style={{ marginRight: "10px" }} /> Delete Account permanently
+              <button
+                onClick={handleDeleteAccount}
+                style={{ ...buttonStyle, background: "#dc3545", flex: 1 }}
+              >
+                Delete Account permanently
               </button>
             </div>
           </div>
@@ -229,7 +281,10 @@ export default function Profile() {
               color: "#fff",
               fontWeight: "bold",
               zIndex: 1000,
-              background: toast.type === "success" ? "rgba(40,167,69,0.9)" : "rgba(220,53,69,0.9)",
+              background:
+                toast.type === "success"
+                  ? "rgba(40,167,69,0.9)"
+                  : "rgba(220,53,69,0.9)",
               boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
             }}
           >
@@ -249,7 +304,8 @@ const inputStyle = {
   fontSize: "1rem",
   outline: "none",
   transition: "0.3s",
-  width: "100%",
+  width: "95%",
+  margin: "0 auto",
 };
 
 const buttonStyle = {
